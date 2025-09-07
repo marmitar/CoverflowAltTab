@@ -25,7 +25,7 @@ import Meta from 'gi://Meta';
 import Pango from 'gi://Pango';
 import GLib from 'gi://GLib';
 import Graphene from 'gi://Graphene';
-
+import Shell from 'gi://Shell';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
@@ -120,11 +120,7 @@ export class Switcher {
             invert = this._settings.invert_swipes;
         }
 
-        const swipeTracker = new MySwipeTracker(this.actor,
-            Clutter.Orientation.HORIZONTAL,
-            0,
-            { allowDrag: true, allowScroll: true, inverted: invert },
-            this._manager.platform.getSettings());
+        const swipeTracker = new MySwipeTracker(this.actor, this._manager.platform.getSettings(), invert);
         swipeTracker.allowLongSwipes = true;
         swipeTracker.connect('begin', this._gestureBegin.bind(this));
         swipeTracker.connect('update', this._gestureUpdate.bind(this));
@@ -315,7 +311,7 @@ export class Switcher {
         this._key_release_handler_id = this.actor.connect('key-release-event', this._keyReleaseEvent.bind(this));
         this._button_press_handler_id = this.actor.connect('button-press-event', this._buttonPressEvent.bind(this));
         this._button_release_handler_id = this.actor.connect('button-release-event', this._buttonReleaseEvent.bind(this));
-        this._grab = Main.pushModal(this.actor)
+        this._grab = Main.pushModal(this.actor, { actionMode: Shell.ActionMode.NORMAL });
         if (!this._grab) {
             this._activateSelected();
             return;
